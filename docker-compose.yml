@@ -1,23 +1,6 @@
 version: '3.8'
 
 services:
-  zammad-backup:
-    command: ["zammad-backup"]
-    depends_on:
-      - zammad-railsserver
-      - zammad-postgresql
-    entrypoint: /usr/local/bin/backup.sh
-    environment:
-      - BACKUP_SLEEP=86400
-      - HOLD_DAYS=10
-      - POSTGRESQL_USER=zammad
-      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD:-zammad}
-    image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
-    restart: ${RESTART:-always}
-    volumes:
-      - zammad-backup:/var/tmp/zammad
-      - zammad-data:/opt/zammad:ro
-      - zammad-postgresql-data:/var/lib/postgresql/data:ro
 
   zammad-elasticsearch:
     environment:
@@ -141,8 +124,6 @@ services:
 
 volumes:
   elasticsearch-data:
-    driver: local
-  zammad-backup:
     driver: local
   zammad-data:
     driver: local
