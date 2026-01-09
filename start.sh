@@ -2,6 +2,19 @@
 
 # Simple start script for Zammad
 
+# Check if .env exists
+if [ ! -f .env ]; then
+    echo "Creating .env file with default values..."
+    cat > .env << EOF
+# Zammad Configuration
+VERSION=6.4.1
+RESTART=always
+POSTGRES_PASSWORD=postgres
+ELASTICSEARCH_ENABLED=true
+ELASTICSEARCH_SSL=false
+EOF
+fi
+
 echo "Starting Zammad on port 9000..."
 docker-compose up -d
 

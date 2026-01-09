@@ -17,7 +17,7 @@ services:
       - zammad-postgresql
     environment:
       - POSTGRESQL_USER=zammad
-      - POSTGRESQL_PASS=${POSTGRES_PASSWORD:-zammad}
+      - POSTGRESQL_PASS=${POSTGRES_PASSWORD:-postgres}
     image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
     restart: on-failure
     volumes:
@@ -43,7 +43,7 @@ services:
   zammad-postgresql:
     environment:
       - POSTGRES_USER=zammad
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-zammad}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
     image: postgres:16-alpine
     restart: ${RESTART:-always}
     volumes:
