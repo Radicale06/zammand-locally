@@ -4,12 +4,12 @@ This directory contains everything needed to deploy Zammad for your team's ticke
 
 ## Quick Start
 
-1. Run the setup script as root:
+1. Start Zammad:
    ```bash
-   sudo ./setup.sh
+   ./start.sh
    ```
 
-2. Access Zammad at: https://zammad.quickyprime.com
+2. Access Zammad at: http://your-server-ip:9000
 
 ## Manual Installation Steps
 
@@ -44,9 +44,13 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-### 5. Get SSL Certificate
+### 5. Optional: Configure Nginx Proxy
+If you want to use Nginx as a reverse proxy:
 ```bash
-sudo certbot certonly --nginx -d zammad.quickyprime.com
+sudo cp nginx-config.conf /etc/nginx/sites-available/zammad
+sudo ln -s /etc/nginx/sites-available/zammad /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
 ```
 
 ## Container Management
