@@ -35,19 +35,6 @@ services:
     command: memcached -m 256M
     restart: always
 
-  zammad-nginx:
-    command: ["zammad-nginx"]
-    ports:
-      - "9000:8080"
-    depends_on:
-      - zammad-railsserver
-    environment:
-      - RAILS_SERVED_SSL_ENABLED=false
-    image: ghcr.io/zammad/zammad:6.4.1
-    restart: always
-    volumes:
-      - zammad-data:/opt/zammad:ro
-
   zammad-postgresql:
     environment:
       - POSTGRES_USER=zammad
@@ -55,11 +42,15 @@ services:
       - POSTGRES_DB=zammad_production
     image: postgres:15-alpine
     restart: always
+    ports:
+      - "5433:5432"
     volumes:
       - postgresql-data:/var/lib/postgresql/data
 
   zammad-railsserver:
     command: ["zammad-railsserver"]
+    ports:
+      - "9000:3000"
     depends_on:
       - zammad-init
       - zammad-memcached
@@ -73,6 +64,7 @@ services:
       - POSTGRESQL_USER=zammad
       - POSTGRESQL_PASS=postgres
       - POSTGRESQL_DB=zammad_production
+      - POSTGRESQL_DB_POOL=50
       - REDIS_URL=redis://zammad-redis:6379
       - ELASTICSEARCH_ENABLED=true
       - ELASTICSEARCH_HOST=zammad-elasticsearch
@@ -80,6 +72,8 @@ services:
       - ELASTICSEARCH_SSL=false
       - RAILS_LOG_TO_STDOUT=true
       - RAILS_SERVE_STATIC_FILES=true
+      - RAILS_SERVED_SSL_ENABLED=false
+      - WEB_CONCURRENCY=4
     image: ghcr.io/zammad/zammad:6.4.1
     restart: always
     volumes:
@@ -107,6 +101,7 @@ services:
       - POSTGRESQL_USER=zammad
       - POSTGRESQL_PASS=postgres
       - POSTGRESQL_DB=zammad_production
+      - POSTGRESQL_DB_POOL=15
       - REDIS_URL=redis://zammad-redis:6379
       - ELASTICSEARCH_ENABLED=true
       - ELASTICSEARCH_HOST=zammad-elasticsearch
@@ -131,6 +126,7 @@ services:
       - POSTGRESQL_USER=zammad
       - POSTGRESQL_PASS=postgres
       - POSTGRESQL_DB=zammad_production
+      - POSTGRESQL_DB_POOL=5
       - REDIS_URL=redis://zammad-redis:6379
     image: ghcr.io/zammad/zammad:6.4.1
     restart: always
