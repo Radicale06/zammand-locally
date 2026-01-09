@@ -1,35 +1,23 @@
 #!/bin/bash
 
-# Simple start script for Zammad
+echo "Starting Zammad..."
 
-# Check if .env exists
-if [ ! -f .env ]; then
-    echo "Creating .env file with default values..."
-    cat > .env << EOF
-# Zammad Configuration
-VERSION=6.4.1
-RESTART=always
-POSTGRES_PASSWORD=postgres
-ELASTICSEARCH_ENABLED=true
-ELASTICSEARCH_SSL=false
-EOF
-fi
-
-echo "Starting Zammad on port 9000..."
 docker-compose up -d
 
 echo ""
-echo "Checking container status..."
+echo "Waiting for services to start..."
+sleep 10
+
+echo "Container status:"
 docker-compose ps
 
 echo ""
-echo "Zammad is accessible at:"
-echo "- http://your-server-ip:9000"
-echo "- http://zammad.quickyprime.com:9000 (if DNS is configured)"
+echo "=== IMPORTANT ==="
+echo "Zammad will be available at: http://YOUR_SERVER_IP:9000"
 echo ""
-echo "Default admin login:"
-echo "- Email: admin@zammad.org"
-echo "- Set password on first login"
+echo "It may take 2-3 minutes for initial setup to complete."
+echo "Check logs with: docker-compose logs -f"
 echo ""
-echo "To view logs: docker-compose logs -f"
-echo "To stop: docker-compose down"
+echo "Default admin credentials:"
+echo "Email: admin@zammad.org"
+echo "Password: (set on first login)"

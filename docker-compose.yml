@@ -1,13 +1,13 @@
 version: '3.8'
 
 services:
-
   zammad-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
     environment:
       - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - xpack.security.enabled=false
-    image: elasticsearch:8.15.3
-    restart: ${RESTART:-always}
+    restart: always
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
 
@@ -16,17 +16,24 @@ services:
     depends_on:
       - zammad-postgresql
     environment:
+      - POSTGRESQL_HOST=zammad-postgresql
+      - POSTGRESQL_PORT=5432
       - POSTGRESQL_USER=zammad
-      - POSTGRESQL_PASS=${POSTGRES_PASSWORD:-postgres}
-    image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
+      - POSTGRESQL_PASS=postgres
+      - POSTGRESQL_DB=zammad_production
+      - REDIS_URL=redis://zammad-redis:6379
+      - ELASTICSEARCH_ENABLED=true
+      - ELASTICSEARCH_HOST=zammad-elasticsearch
+      - ELASTICSEARCH_PORT=9200
+    image: ghcr.io/zammad/zammad:6.4.1
     restart: on-failure
     volumes:
       - zammad-data:/opt/zammad
 
   zammad-memcached:
+    image: memcached:1.6-alpine
     command: memcached -m 256M
-    image: memcached:alpine
-    restart: ${RESTART:-always}
+    restart: always
 
   zammad-nginx:
     command: ["zammad-nginx"]
@@ -34,104 +41,104 @@ services:
       - "9000:8080"
     depends_on:
       - zammad-railsserver
-    image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
-    restart: ${RESTART:-always}
+    environment:
+      - RAILS_SERVED_SSL_ENABLED=false
+    image: ghcr.io/zammad/zammad:6.4.1
+    restart: always
     volumes:
       - zammad-data:/opt/zammad:ro
-      - zammad-nginx-uploads-cache:/var/cache/nginx
 
   zammad-postgresql:
     environment:
       - POSTGRES_USER=zammad
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-    image: postgres:16-alpine
-    restart: ${RESTART:-always}
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=zammad_production
+    image: postgres:15-alpine
+    restart: always
     volumes:
-      - zammad-postgresql-data:/var/lib/postgresql/data
+      - postgresql-data:/var/lib/postgresql/data
 
   zammad-railsserver:
     command: ["zammad-railsserver"]
     depends_on:
+      - zammad-init
       - zammad-memcached
       - zammad-postgresql
       - zammad-redis
+      - zammad-elasticsearch
     environment:
       - MEMCACHE_SERVERS=zammad-memcached:11211
-      - POSTGRESQL_USER=zammad
-      - POSTGRESQL_PASS=${POSTGRES_PASSWORD:-zammad}
-      - POSTGRESQL_DB=zammad_production
       - POSTGRESQL_HOST=zammad-postgresql
       - POSTGRESQL_PORT=5432
-      - POSTGRESQL_DB_CREATE=false
+      - POSTGRESQL_USER=zammad
+      - POSTGRESQL_PASS=postgres
+      - POSTGRESQL_DB=zammad_production
       - REDIS_URL=redis://zammad-redis:6379
-      - ELASTICSEARCH_ENABLED=${ELASTICSEARCH_ENABLED:-true}
+      - ELASTICSEARCH_ENABLED=true
       - ELASTICSEARCH_HOST=zammad-elasticsearch
       - ELASTICSEARCH_PORT=9200
-      - ELASTICSEARCH_SSL=${ELASTICSEARCH_SSL:-false}
-      - ELASTICSEARCH_NAMESPACE=zammad
-      - RAILS_TRUSTED_PROXIES=["127.0.0.1", "::1", "172.16.0.0/12"]
-    image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
-    restart: ${RESTART:-always}
+      - ELASTICSEARCH_SSL=false
+      - RAILS_LOG_TO_STDOUT=true
+      - RAILS_SERVE_STATIC_FILES=true
+    image: ghcr.io/zammad/zammad:6.4.1
+    restart: always
     volumes:
       - zammad-data:/opt/zammad
-      - zammad-uploads:/opt/zammad/storage
 
   zammad-redis:
     image: redis:7-alpine
-    restart: ${RESTART:-always}
+    restart: always
     volumes:
-      - zammad-redis-data:/data
+      - redis-data:/data
 
   zammad-scheduler:
     command: ["zammad-scheduler"]
     depends_on:
+      - zammad-init
       - zammad-memcached
       - zammad-postgresql
       - zammad-redis
       - zammad-railsserver
+      - zammad-elasticsearch
     environment:
       - MEMCACHE_SERVERS=zammad-memcached:11211
-      - POSTGRESQL_USER=zammad
-      - POSTGRESQL_PASS=${POSTGRES_PASSWORD:-zammad}
-      - POSTGRESQL_DB=zammad_production
       - POSTGRESQL_HOST=zammad-postgresql
       - POSTGRESQL_PORT=5432
+      - POSTGRESQL_USER=zammad
+      - POSTGRESQL_PASS=postgres
+      - POSTGRESQL_DB=zammad_production
       - REDIS_URL=redis://zammad-redis:6379
-    image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
-    restart: ${RESTART:-always}
+      - ELASTICSEARCH_ENABLED=true
+      - ELASTICSEARCH_HOST=zammad-elasticsearch
+      - ELASTICSEARCH_PORT=9200
+    image: ghcr.io/zammad/zammad:6.4.1
+    restart: always
     volumes:
       - zammad-data:/opt/zammad
 
   zammad-websocket:
     command: ["zammad-websocket"]
     depends_on:
+      - zammad-init
       - zammad-memcached
       - zammad-postgresql
       - zammad-redis
       - zammad-railsserver
     environment:
       - MEMCACHE_SERVERS=zammad-memcached:11211
-      - POSTGRESQL_USER=zammad
-      - POSTGRESQL_PASS=${POSTGRES_PASSWORD:-zammad}
-      - POSTGRESQL_DB=zammad_production
       - POSTGRESQL_HOST=zammad-postgresql
       - POSTGRESQL_PORT=5432
+      - POSTGRESQL_USER=zammad
+      - POSTGRESQL_PASS=postgres
+      - POSTGRESQL_DB=zammad_production
       - REDIS_URL=redis://zammad-redis:6379
-    image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
-    restart: ${RESTART:-always}
+    image: ghcr.io/zammad/zammad:6.4.1
+    restart: always
     volumes:
       - zammad-data:/opt/zammad
 
 volumes:
   elasticsearch-data:
-    driver: local
+  postgresql-data:
+  redis-data:
   zammad-data:
-    driver: local
-  zammad-nginx-uploads-cache:
-    driver: local
-  zammad-postgresql-data:
-    driver: local
-  zammad-redis-data:
-    driver: local
-  zammad-uploads:
-    driver: local
