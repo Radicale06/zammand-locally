@@ -12,7 +12,7 @@ services:
       - HOLD_DAYS=10
       - POSTGRESQL_USER=zammad
       - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD:-zammad}
-    image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
+    image: zammad/zammad:${VERSION:-6.4.1}
     restart: ${RESTART:-always}
     volumes:
       - zammad-backup:/var/tmp/zammad
@@ -35,7 +35,7 @@ services:
     environment:
       - POSTGRESQL_USER=zammad
       - POSTGRESQL_PASS=${POSTGRES_PASSWORD:-zammad}
-    image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
+    image: zammad/zammad:${VERSION:-6.4.1}
     restart: on-failure
     volumes:
       - zammad-data:/opt/zammad
@@ -51,7 +51,7 @@ services:
       - "9000:8080"
     depends_on:
       - zammad-railsserver
-    image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
+    image: zammad/zammad:${VERSION:-6.4.1}
     restart: ${RESTART:-always}
     volumes:
       - zammad-data:/opt/zammad:ro
@@ -87,7 +87,7 @@ services:
       - ELASTICSEARCH_SSL=${ELASTICSEARCH_SSL:-false}
       - ELASTICSEARCH_NAMESPACE=zammad
       - RAILS_TRUSTED_PROXIES=["127.0.0.1", "::1", "172.16.0.0/12"]
-    image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
+    image: zammad/zammad:${VERSION:-6.4.1}
     restart: ${RESTART:-always}
     volumes:
       - zammad-data:/opt/zammad
@@ -114,7 +114,7 @@ services:
       - POSTGRESQL_HOST=zammad-postgresql
       - POSTGRESQL_PORT=5432
       - REDIS_URL=redis://zammad-redis:6379
-    image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
+    image: zammad/zammad:${VERSION:-6.4.1}
     restart: ${RESTART:-always}
     volumes:
       - zammad-data:/opt/zammad
@@ -134,7 +134,7 @@ services:
       - POSTGRESQL_HOST=zammad-postgresql
       - POSTGRESQL_PORT=5432
       - REDIS_URL=redis://zammad-redis:6379
-    image: ghcr.io/zammad/zammad:${VERSION:-6.4.1}
+    image: zammad/zammad:${VERSION:-6.4.1}
     restart: ${RESTART:-always}
     volumes:
       - zammad-data:/opt/zammad
