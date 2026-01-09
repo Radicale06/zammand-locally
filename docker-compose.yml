@@ -21,6 +21,7 @@ services:
       - POSTGRESQL_USER=zammad
       - POSTGRESQL_PASS=postgres
       - POSTGRESQL_DB=zammad_production
+      - POSTGRESQL_DB_POOL=50
       - REDIS_URL=redis://zammad-redis:6379
       - ELASTICSEARCH_ENABLED=true
       - ELASTICSEARCH_HOST=zammad-elasticsearch
@@ -46,7 +47,7 @@ services:
       - "5435:5432"
     volumes:
       - postgresql-data:/var/lib/postgresql/data
-    command: postgres -c max_connections=200
+    command: postgres -c max_connections=500
 
   zammad-railsserver:
     command: ["zammad-railsserver"]
@@ -65,7 +66,7 @@ services:
       - POSTGRESQL_USER=zammad
       - POSTGRESQL_PASS=postgres
       - POSTGRESQL_DB=zammad_production
-      - POSTGRESQL_DB_POOL=25
+      - POSTGRESQL_DB_POOL=50
       - REDIS_URL=redis://zammad-redis:6379
       - ELASTICSEARCH_ENABLED=true
       - ELASTICSEARCH_HOST=zammad-elasticsearch
@@ -74,7 +75,7 @@ services:
       - RAILS_LOG_TO_STDOUT=true
       - RAILS_SERVE_STATIC_FILES=true
       - RAILS_SERVED_SSL_ENABLED=false
-      - WEB_CONCURRENCY=4
+      - WEB_CONCURRENCY=0
     image: ghcr.io/zammad/zammad:6.4.1
     restart: always
     volumes:
@@ -102,7 +103,7 @@ services:
       - POSTGRESQL_USER=zammad
       - POSTGRESQL_PASS=postgres
       - POSTGRESQL_DB=zammad_production
-      - POSTGRESQL_DB_POOL=25
+      - POSTGRESQL_DB_POOL=50
       - REDIS_URL=redis://zammad-redis:6379
       - ELASTICSEARCH_ENABLED=true
       - ELASTICSEARCH_HOST=zammad-elasticsearch
@@ -127,7 +128,7 @@ services:
       - POSTGRESQL_USER=zammad
       - POSTGRESQL_PASS=postgres
       - POSTGRESQL_DB=zammad_production
-      - POSTGRESQL_DB_POOL=10
+      - POSTGRESQL_DB_POOL=50
       - REDIS_URL=redis://zammad-redis:6379
     image: ghcr.io/zammad/zammad:6.4.1
     restart: always
